@@ -10,10 +10,14 @@ import json
 class TestProductViewSet(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword"
+        )
 
         self.category = Category.objects.create(title="Electronics", slug="electronics")
-        self.category2 = Category.objects.create(title="Accessories", slug="accessories")
+        self.category2 = Category.objects.create(
+            title="Accessories", slug="accessories"
+        )
 
         self.token = Token.objects.create(user=self.user)
 
@@ -25,12 +29,12 @@ class TestProductViewSet(APITestCase):
             "description": "Description of pro controller",
             "price": 200,
             "active": True,
-            "categories_id": [self.category.id, self.category2.id]
+            "categories_id": [self.category.id, self.category2.id],
         }
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -45,7 +49,7 @@ class TestProductViewSet(APITestCase):
             title="pro controller",
             description="Description of pro controller",
             price=200,
-            active=True
+            active=True,
         )
         product.category.add(self.category, self.category2)
 
@@ -60,5 +64,9 @@ class TestProductViewSet(APITestCase):
         self.assertGreater(len(product_data["results"]), 0)
 
         self.assertGreater(len(product_data["results"][0]["category"]), 0)
-        self.assertEqual(product_data["results"][0]["category"][0]["title"], self.category.title)
-        self.assertEqual(product_data["results"][0]["category"][1]["title"], self.category2.title)
+        self.assertEqual(
+            product_data["results"][0]["category"][0]["title"], self.category.title
+        )
+        self.assertEqual(
+            product_data["results"][0]["category"][1]["title"], self.category2.title
+        )
