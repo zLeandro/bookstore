@@ -27,6 +27,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*  # Limpar caches de pacotes para reduzir o tamanho da imagem
 
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc \
+    && pip install psycopg2
+
 # Configuração do diretório de trabalho e copiar os arquivos necessários
 WORKDIR $PYSETUP_PATH
 COPY poetry.lock pyproject.toml ./

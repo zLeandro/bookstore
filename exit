@@ -1,0 +1,388 @@
+warning: in the working copy of 'order/models/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'order/viewsets/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'product/viewsets/__init__.py', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.env.dev b/.env.dev[m
+[1mindex 491c2f0..50ce53e 100644[m
+[1m--- a/.env.dev[m
+[1m+++ b/.env.dev[m
+[36m@@ -2,8 +2,8 @@[m [mDEBUG=1[m
+ SECRET_KEY=foo[m
+ DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1][m
+ SQL_ENGINE=django.db.backends.postgresql[m
+[31m-SQL_DATABASE=bookstore_dev_db[m
+[31m-SQL_USER=bookstore_dev[m
+[31m-SQL_PASSWORD=bookstore_dev[m
+[32m+[m[32mSQL_USER=dev[m
+[32m+[m[32mSQL_PASSWORD=dev[m
+[32m+[m[32mSQL_DATABASE=bookstore_db[m
+ SQL_HOST=db[m
+ SQL_PORT=5432[m
+\ No newline at end of file[m
+[1mdiff --git a/.idea/bookstore.iml b/.idea/bookstore.iml[m
+[1mindex 5b91ce0..106eec9 100644[m
+[1m--- a/.idea/bookstore.iml[m
+[1m+++ b/.idea/bookstore.iml[m
+[36m@@ -4,7 +4,7 @@[m
+     <content url="file://$MODULE_DIR$">[m
+       <excludeFolder url="file://$MODULE_DIR$/.venv" />[m
+     </content>[m
+[31m-    <orderEntry type="jdk" jdkName="Python 3.12 (bookstore)" jdkType="Python SDK" />[m
+[32m+[m[32m    <orderEntry type="jdk" jdkName="Python 3.12" jdkType="Python SDK" />[m
+     <orderEntry type="sourceFolder" forTests="false" />[m
+   </component>[m
+   <component name="PyDocumentationSettings">[m
+[1mdiff --git a/.idea/misc.xml b/.idea/misc.xml[m
+[1mindex b592a8d..9d16957 100644[m
+[1m--- a/.idea/misc.xml[m
+[1m+++ b/.idea/misc.xml[m
+[36m@@ -3,5 +3,5 @@[m
+   <component name="Black">[m
+     <option name="sdkName" value="Python 3.12 (bookstore)" />[m
+   </component>[m
+[31m-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (bookstore)" project-jdk-type="Python SDK" />[m
+[32m+[m[32m  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12" project-jdk-type="Python SDK" />[m
+ </project>[m
+\ No newline at end of file[m
+[1mdiff --git a/Dockerfile b/Dockerfile[m
+[1mindex bf3b5c5..bfce247 100644[m
+[1m--- a/Dockerfile[m
+[1m+++ b/Dockerfile[m
+[36m@@ -27,6 +27,10 @@[m [mRUN apt-get update \[m
+     && apt-get clean \[m
+     && rm -rf /var/lib/apt/lists/*  # Limpar caches de pacotes para reduzir o tamanho da imagem[m
+ [m
+[32m+[m[32mRUN apt-get update \[m
+[32m+[m[32m    && apt-get -y install libpq-dev gcc \[m
+[32m+[m[32m    && pip install psycopg2[m
+[32m+[m
+ # Configuração do diretório de trabalho e copiar os arquivos necessários[m
+ WORKDIR $PYSETUP_PATH[m
+ COPY poetry.lock pyproject.toml ./[m
+[1mdiff --git a/Makefile b/Makefile[m
+[1mindex e69de29..8f40f40 100644[m
+[1m--- a/Makefile[m
+[1m+++ b/Makefile[m
+[36m@@ -0,0 +1,122 @@[m
+[32m+[m[32m# Set this to ~use it everywhere in the project setup[m
+[32m+[m[32mPYTHON_VERSION ?= 3.8.10[m
+[32m+[m[32m# the directories containing the library modules this repo builds[m
+[32m+[m[32mLIBRARY_DIRS = mylibrary[m
+[32m+[m[32m# build artifacts organized in this Makefile[m
+[32m+[m[32mBUILD_DIR ?= build[m
+[32m+[m
+[32m+[m[32m# PyTest options[m
+[32m+[m[32mPYTEST_HTML_OPTIONS = --html=$(BUILD_DIR)/report.html --self-contained-html[m
+[32m+[m[32mPYTEST_TAP_OPTIONS = --tap-combined --tap-outdir $(BUILD_DIR)[m
+[32m+[m[32mPYTEST_COVERAGE_OPTIONS = --cov=$(LIBRARY_DIRS)[m
+[32m+[m[32mPYTEST_OPTIONS ?= $(PYTEST_HTML_OPTIONS) $(PYTEST_TAP_OPTIONS) $(PYTEST_COVERAGE_OPTIONS)[m
+[32m+[m
+[32m+[m[32m# MyPy typechecking options[m
+[32m+[m[32mMYPY_OPTS ?= --python-version $(basename $(PYTHON_VERSION)) --show-column-numbers --pretty --html-report $(BUILD_DIR)/mypy[m
+[32m+[m[32m# Python installation artifacts[m
+[32m+[m[32mPYTHON_VERSION_FILE=.python-version[m
+[32m+[m[32mifeq ($(shell which pyenv),)[m
+[32m+[m[32m# pyenv isn't installed, guess the eventual path FWIW[m
+[32m+[m[32mPYENV_VERSION_DIR ?= $(HOME)/.pyenv/versions/$(PYTHON_VERSION)[m
+[32m+[m[32melse[m
+[32m+[m[32m# pyenv is installed[m
+[32m+[m[32mPYENV_VERSION_DIR ?= $(shell pyenv root)/versions/$(PYTHON_VERSION)[m
+[32m+[m[32mendif[m
+[32m+[m[32mPIP ?= pip3[m
+[32m+[m
+[32m+[m[32mPOETRY_OPTS ?=[m
+[32m+[m[32mPOETRY ?= poetry $(POETRY_OPTS)[m
+[32m+[m[32mRUN_PYPKG_BIN = $(POETRY) run[m
+[32m+[m
+[32m+[m[32mCOLOR_ORANGE = \033[33m[m
+[32m+[m[32mCOLOR_RESET = \033[0m[m
+[32m+[m
+[32m+[m[32m##@ Utility[m
+[32m+[m
+[32m+[m[32m.PHONY: help[m
+[32m+[m[32mhelp:  ## Display this help[m
+[32m+[m	[32m@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)[m
+[32m+[m
+[32m+[m[32m.PHONY: version-python[m
+[32m+[m[32mversion-python: ## Echos the version of Python in use[m
+[32m+[m	[32m@echo $(PYTHON_VERSION)[m
+[32m+[m
+[32m+[m[32m##@ Testing[m
+[32m+[m
+[32m+[m[32m.PHONY: test[m
+[32m+[m[32mtest: ## Runs tests[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) pytest \[m
+[32m+[m		[32m$(PYTEST_OPTIONS) \[m
+[32m+[m		[32mtests/*.py[m
+[32m+[m
+[32m+[m[32m##@ Building and Publishing[m
+[32m+[m
+[32m+[m[32m.PHONY: build[m
+[32m+[m[32mbuild: ## Runs a build[m
+[32m+[m	[32m$(POETRY) build[m
+[32m+[m
+[32m+[m[32m.PHONY: publish[m
+[32m+[m[32mpublish: ## Publish a build to the configured repo[m
+[32m+[m	[32m$(POETRY) publish $(POETRY_PUBLISH_OPTIONS_SET_BY_CI_ENV)[m
+[32m+[m
+[32m+[m[32m.PHONY: deps-py-update[m
+[32m+[m[32mdeps-py-update: pyproject.toml ## Update Poetry deps, e.g. after adding a new one manually[m
+[32m+[m	[32m$(POETRY) update[m
+[32m+[m
+[32m+[m[32m##@ Setup[m
+[32m+[m[32m# dynamic-ish detection of Python installation directory with pyenv[m
+[32m+[m[32m$(PYENV_VERSION_DIR):[m
+[32m+[m	[32mpyenv install --skip-existing $(PYTHON_VERSION)[m
+[32m+[m[32m$(PYTHON_VERSION_FILE): $(PYENV_VERSION_DIR)[m
+[32m+[m	[32mpyenv local $(PYTHON_VERSION)[m
+[32m+[m
+[32m+[m[32m.PHONY: deps[m
+[32m+[m[32mdeps: deps-brew deps-py  ## Installs all dependencies[m
+[32m+[m
+[32m+[m[32m.PHONY: deps-brew[m
+[32m+[m[32mdeps-brew: Brewfile ## Installs development dependencies from Homebrew[m
+[32m+[m	[32mbrew bundle --file=Brewfile[m
+[32m+[m	[32m@echo "$(COLOR_ORANGE)Ensure that pyenv is setup in your shell.$(COLOR_RESET)"[m
+[32m+[m	[32m@echo "$(COLOR_ORANGE)It should have something like 'eval \$$(pyenv init -)'$(COLOR_RESET)"[m
+[32m+[m
+[32m+[m[32m.PHONY: deps-py[m
+[32m+[m[32mdeps-py: $(PYTHON_VERSION_FILE) ## Installs Python development and runtime dependencies[m
+[32m+[m	[32m$(PIP) install --upgrade \[m
+[32m+[m		[32m--index-url $(PYPI_PROXY) \[m
+[32m+[m		[32mpip[m
+[32m+[m	[32m$(PIP) install --upgrade \[m
+[32m+[m[41m                                     [m		[32m--index-url $(PYPI_PROXY) \[m
+[32m+[m[41m                                     [m		[32mpoetry[m
+[32m+[m	[32m$(POETRY) install[m
+[32m+[m
+[32m+[m[32m##@ Code Quality[m
+[32m+[m
+[32m+[m[32m.PHONY: check[m
+[32m+[m[32mcheck: check-py ## Runs linters and other important tools[m
+[32m+[m
+[32m+[m[32m.PHONY: check-py[m
+[32m+[m[32mcheck-py: check-py-flake8 check-py-black check-py-mypy ## Checks only Python files[m
+[32m+[m
+[32m+[m[32m.PHONY: check-py-flake8[m
+[32m+[m[32mcheck-py-flake8: ## Runs flake8 linter[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) flake8 .[m
+[32m+[m
+[32m+[m[32m.PHONY: check-py-black[m
+[32m+[m[32mcheck-py-black: ## Runs black in check mode (no changes)[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) black --check --line-length 118 --fast .[m
+[32m+[m
+[32m+[m[32m.PHONY: check-py-mypy[m
+[32m+[m[32mcheck-py-mypy: ## Runs mypy[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) mypy $(MYPY_OPTS) $(LIBRARY_DIRS)[m
+[32m+[m
+[32m+[m[32m.PHONY: format-py[m
+[32m+[m[32mformat-py: ## Runs black, makes changes where necessary[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) black .[m
+[32m+[m
+[32m+[m[32m.PHONY: format-autopep8[m
+[32m+[m[32mformat-autopep8:[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) autopep8 --in-place --recursive .[m
+[32m+[m
+[32m+[m[32m.PHONY: format-isort[m
+[32m+[m[32mformat-isort:[m
+[32m+[m	[32m$(RUN_PYPKG_BIN) isort --recursive .[m
+\ No newline at end of file[m
+[1mdiff --git a/bookstore/settings.py b/bookstore/settings.py[m
+[1mindex 676f7bd..7f78163 100644[m
+[1m--- a/bookstore/settings.py[m
+[1m+++ b/bookstore/settings.py[m
+[36m@@ -10,23 +10,12 @@[m [mFor the full list of settings and their values, see[m
+ https://docs.djangoproject.com/en/5.1/ref/settings/[m
+ """[m
+ [m
+[32m+[m[32mimport os[m
+ from pathlib import Path[m
+ [m
+[31m-# Build paths inside the project like this: BASE_DIR / 'subdir'.[m
+[31m-BASE_DIR = Path(__file__).resolve().parent.parent[m
+[31m-[m
+[31m-[m
+ # Quick-start development settings - unsuitable for production[m
+ # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/[m
+ [m
+[31m-# SECURITY WARNING: keep the secret key used in production secret![m
+[31m-SECRET_KEY = "django-insecure-b!j**sd%gtfh=(sui9ea5t(8-14*f&gle_!t3h-m4t=l^my#0z"[m
+[31m-[m
+[31m-# SECURITY WARNING: don't run with debug turned on in production![m
+[31m-DEBUG = True[m
+[31m-[m
+[31m-ALLOWED_HOSTS = [][m
+[31m-[m
+ [m
+ # Application definition[m
+ [m
+[36m@@ -46,12 +35,12 @@[m [mINSTALLED_APPS = [[m
+ ][m
+ [m
+ REST_FRAMEWORK = {[m
+[31m-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',[m
+[31m-    'PAGE_SIZE': 5,[m
+[31m-    'DEFAULT_AUTHENTICATION_CLASSES': [[m
+[31m-        'rest_framework.authentication.BasicAuthentication',[m
+[31m-        'rest_framework.authentication.SessionAuthentication',[m
+[31m-        'rest_framework.authentication.TokenAuthentication',[m
+[32m+[m[32m    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",[m
+[32m+[m[32m    "PAGE_SIZE": 5,[m
+[32m+[m[32m    "DEFAULT_AUTHENTICATION_CLASSES": [[m
+[32m+[m[32m        "rest_framework.authentication.BasicAuthentication",[m
+[32m+[m[32m        "rest_framework.authentication.SessionAuthentication",[m
+[32m+[m[32m        "rest_framework.authentication.TokenAuthentication",[m
+     ],[m
+ }[m
+ [m
+[36m@@ -91,10 +80,16 @@[m [mWSGI_APPLICATION = "bookstore.wsgi.application"[m
+ # Database[m
+ # https://docs.djangoproject.com/en/5.1/ref/settings/#databases[m
+ [m
+[32m+[m[32mBASE_DIR = Path(__file__).resolve().parent.parent[m
+[32m+[m
+ DATABASES = {[m
+     "default": {[m
+[31m-        "ENGINE": "django.db.backends.sqlite3",[m
+[31m-        "NAME": BASE_DIR / "db.sqlite3",[m
+[32m+[m[32m        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql"),[m
+[32m+[m[32m        "NAME": os.environ.get("SQL_DATABASE", "bookstore_db"),[m
+[32m+[m[32m        "USER": os.environ.get("SQL_USER", "dev"),[m
+[32m+[m[32m        "PASSWORD": os.environ.get("SQL_PASSWORD", "dev"),[m
+[32m+[m[32m        "HOST": os.environ.get("SQL_HOST", "db"),[m
+[32m+[m[32m        "PORT": os.environ.get("SQL_PORT", "5432"),[m
+     }[m
+ }[m
+ [m
+[36m@@ -142,4 +137,10 @@[m [mDEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"[m
+ [m
+ INTERNAL_IPS = [[m
+     "127.0.0.1",[m
+[31m-][m
+\ No newline at end of file[m
+[32m+[m[32m][m
+[32m+[m
+[32m+[m[32mSECRET_KEY = os.environ.get("SECRET_KEY")[m
+[32m+[m
+[32m+[m[32mDEBUG = int(os.environ.get("DEBUG", default=0))[m
+[32m+[m
+[32m+[m[32mALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")[m
+[1mdiff --git a/bookstore/urls.py b/bookstore/urls.py[m
+[1mindex b7d163b..b41c200 100644[m
+[1m--- a/bookstore/urls.py[m
+[1m+++ b/bookstore/urls.py[m
+[36m@@ -14,15 +14,16 @@[m [mIncluding another URLconf[m
+     1. Import the include() function: from django.urls import include, path[m
+     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))[m
+ """[m
+[32m+[m
+ import debug_toolbar[m
+ from django.contrib import admin[m
+ from django.urls import path, re_path, include[m
+ from rest_framework.authtoken.views import obtain_auth_token[m
+ [m
+ urlpatterns = [[m
+[31m-    path('__debug__/', include(debug_toolbar.urls)),[m
+[31m-    path('admin/', admin.site.urls),[m
+[31m-    re_path(r'bookstore/(?P<version>(v1|v2))/', include('order.urls')),[m
+[31m-    re_path(r'bookstore/(?P<version>(v1|v2))/', include('product.urls')),[m
+[31m-    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),[m
+[32m+[m[32m    path("__debug__/", include(debug_toolbar.urls)),[m
+[32m+[m[32m    path("admin/", admin.site.urls),[m
+[32m+[m[32m    re_path(r"bookstore/(?P<version>(v1|v2))/", include("order.urls")),[m
+[32m+[m[32m    re_path(r"bookstore/(?P<version>(v1|v2))/", include("product.urls")),[m
+[32m+[m[32m    path("api-token-auth/", obtain_auth_token, name="api_token_auth"),[m
+ ][m
+[1mdiff --git a/docker-compose.yml b/docker-compose.yml[m
+[1mindex e69de29..df842b3 100644[m
+[1m--- a/docker-compose.yml[m
+[1m+++ b/docker-compose.yml[m
+[36m@@ -0,0 +1,24 @@[m
+[32m+[m[32mservices:[m
+[32m+[m[32m  web:[m
+[32m+[m[32m    build: .[m
+[32m+[m[32m    command: python manage.py runserver 0.0.0.0:8000[m
+[32m+[m[32m    volumes:[m
+[32m+[m[32m      - .:/usr/src/app/[m
+[32m+[m[32m    ports:[m
+[32m+[m[32m      - 8000:8000[m
+[32m+[m[32m    env_file:[m
+[32m+[m[32m      - .env.dev[m
+[32m+[m[32m    depends_on:[m
+[32m+[m[32m      - db[m
+[32m+[m
+[32m+[m[32m  db:[m
+[32m+[m[32m    image: postgres:13.0-alpine[m
+[32m+[m[32m    volumes:[m
+[32m+[m[32m      - postgres_data:/var/lib/postgresql/data/[m
+[32m+[m[32m    environment:[m
+[32m+[m[32m      - POSTGRES_USER=dev[m
+[32m+[m[32m      - POSTGRES_PASSWORD=dev[m
+[32m+[m[32m      - POSTGRES_DB=bookstore_db[m
+[32m+[m
+[32m+[m[32mvolumes:[m
+[32m+[m[32m  postgres_data:[m
+\ No newline at end of file[m
+[1mdiff --git a/order/factories.py b/order/factories.py[m
+[1mindex e1219f2..c573d53 100644[m
+[1m--- a/order/factories.py[m
+[1m+++ b/order/factories.py[m
+[36m@@ -2,12 +2,12 @@[m [mimport factory[m
+ from django.contrib.auth.models import User[m
+ [m
+ from order.models import Order[m
+[31m-from product.factories import ProductFactory[m
+ [m
+ [m
+ class UserFactory(factory.django.DjangoModelFactory):[m
+     email = factory.Faker("email")[m
+     username = factory.Faker("user_name")[m
+[32m+[m
+     class Meta:[m
+         model = User[m
+ [m
+[36m@@ -25,4 +25,4 @@[m [mclass OrderFactory(factory.django.DjangoModelFactory):[m
+                 self.product.add(product)[m
+ [m
+     class Meta:[m
+[31m-        model = Order[m
+\ No newline at end of file[m
+[32m+[m[32m        model = Order[m
+[1mdiff --git a/order/models/__init__.py b/order/models/__init__.py[m
+[1mindex 0065b08..a611692 100644[m
+[1m--- a/order/models/__init__.py[m
+[1m+++ b/order/models/__init__.py[m
+[36m@@ -1 +1 @@[m
+[31m-from .order import Order[m
+\ No newline at end of file[m
+[32m+[m[32mfrom .order import Order[m
+[1mdiff --git a/order/models/order.py b/order/models/order.py[m
+[1mindex c4574c8..b55a907 100644[m
+[1m--- a/order/models/order.py[m
+[1m+++ b/order/models/order.py[m
+[36m@@ -7,4 +7,4 @@[m [mfrom product.models import Product[m
+ class Order(models.Model):[m
+     objects = None[m
+     product = models.ManyToManyField(Product, blank=False)[m
+[31m-    user = models.ForeignKey(User, on_delete=models.CASCADE)[m
+\ No newline at end of file[m
+[32m+[m[32m    user = models.ForeignKey(User, on_delete=models.CASCADE)[m
+[1mdiff --git a/order/serializers/__init__.py b/order/serializers/__init__.py[m
+[1mindex 46c9f1f..c14ed5e 100644[m
+[1m--- a/order/serializers/__init__.py[m
+[1m+++ b/order/serializers/__init__.py[m
+[36m@@ -1,2 +1,2 @@[m
+ # order/serializers/__init__.py[m
+[31m-from .order_serializer import OrderSerializer[m
+\ No newline at end of file[m
+[32m+[m[32mfrom .order_serializer import OrderSerializer[m
+[1mdiff --git a/order/serializers/order_serializer.py b/order/serializers/order_serializer.py[m
+[1mindex 01773f5..48fcc72 100644[m
+[1m--- a/order/serializers/order_serializer.py[m
+[1m+++ b/order/serializers/order_serializer.py[m
+[36m@@ -3,23 +3,26 @@[m [mfrom order.models import Order[m
+ from product.models import Product[m
+ from product.serializers import ProductSerializer[m
+ [m
+[32m+[m
+ class OrderSerializer(serializers.ModelSerializer):[m
+     product = ProductSerializer(read_only=Tru

@@ -2,12 +2,12 @@ import factory
 from django.contrib.auth.models import User
 
 from order.models import Order
-from product.factories import ProductFactory
 
 
 class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     username = factory.Faker("user_name")
+
     class Meta:
         model = User
 

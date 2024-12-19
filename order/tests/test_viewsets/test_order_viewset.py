@@ -9,6 +9,7 @@ from order.models import Order
 from product.factories import CategoryFactory, ProductFactory
 from product.models import Product
 
+
 class TestOrderViewSet(APITestCase):
     client = APIClient()
 
@@ -56,10 +57,7 @@ class TestOrderViewSet(APITestCase):
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
-        data = json.dumps({
-            "products_id": [product.id],
-            "user": user.id
-        })
+        data = json.dumps({"products_id": [product.id], "user": user.id})
 
         response = self.client.post(
             reverse("order-list", kwargs={"version": "v1"}),
