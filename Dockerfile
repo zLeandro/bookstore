@@ -45,5 +45,7 @@ COPY . /app/
 # Expor a porta do servidor
 EXPOSE 8000
 
+RUN pip install python-dotenv
+
 # Comando para iniciar o servidor Django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
