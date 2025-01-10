@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.12]
 
     runs-on: ubuntu-latest
 
@@ -29,9 +29,10 @@ jobs:
       run: poetry --help
 
     - name: Install dependencies
-      shell: bash
-      run: python -m poetry install
+      run: poetry install
 
-    - name: Test
+    - name: Verify installed dependencies
+      run: poetry show
+    - name: Run tests
       run: |
         poetry run python manage.py test
