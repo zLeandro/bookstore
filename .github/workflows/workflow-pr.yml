@@ -4,7 +4,7 @@ jobs:
 
   qa:
     name: Quality check
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: Set up Python
@@ -27,6 +27,9 @@ jobs:
         run: python -m poetry install
 
       - name: Test
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
         run: |
           poetry run python manage.py test
       - name: Wemake Python Stylguide
