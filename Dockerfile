@@ -27,25 +27,22 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*  # Limpar caches de pacotes para reduzir o tamanho da imagem
 
-RUN apt-get update \
-    && apt-get -y install libpq-dev gcc \
-    && pip install psycopg2
-
 # Configuração do diretório de trabalho e copiar os arquivos necessários
 WORKDIR $PYSETUP_PATH
 COPY poetry.lock pyproject.toml ./
 
-# Instalar as dependências do Poetry (sem as dependências de desenvolvimento)
-RUN poetry install --only main  # Use --only main para instalar apenas as dependências de produção
+# Instalar as dependências do Poetry (somente as dependências de produção)
+RUN poetry install --no-dev  # Use --no-dev para instalar apenas as dependências de produção
 
 # Configuração do diretório do projeto
 WORKDIR /app
 COPY . /app/
 
+# Instalar python-dotenv (se necessário, pode ser movido para poetry.toml)
+RUN pip install --no-cache-dir python-dotenv
+
 # Expor a porta do servidor
 EXPOSE 8000
-
-RUN pip install python-dotenv
 
 # Comando para iniciar o servidor Django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
