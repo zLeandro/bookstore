@@ -10,11 +10,15 @@ jobs:
         image: postgres:13.0-alpine
         ports:
           - 5432:5432
-        env:
+        environment:
           POSTGRES_USER: bookstore_dev
           POSTGRES_PASSWORD: bookstore_dev
           POSTGRES_DB: bookstore_dev_db
-        options: --health-cmd="pg_isready -U bookstore_dev" --health-timeout=5s --health-start-period=10s --health-retries=5
+        options:
+          --health-cmd="pg_isready -U bookstore_dev" 
+          --health-timeout=5s 
+          --health-start-period=10s 
+          --health-retries=5
 
     steps:
       - uses: actions/checkout@v1
@@ -39,26 +43,16 @@ jobs:
         shell: bash
         run: python -m poetry install
 
-      - name: Give execute permissions to wait-for-it.sh
-        run: chmod +x ./wait-for-it.sh
-
+      # Espera o PostgreSQL ficar pronto para a conexão
       - name: Wait for PostgreSQL to be ready
         run: |
-          ./wait-for-it.sh db:5432 --timeout=60 --strict -- echo "PostgreSQL is ready"
-
-      - name: Check PostgreSQL connectivity
-        run: |
-          until pg_isready -h db -p 5432 -U bookstore_dev; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 2
-          done
-          echo "PostgreSQL is ready"
+          ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "PostgreSQL is ready"
 
       - name: Test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_HOST: db
+          SQL_HOST: db  # Definindo o host do banco de dados para o nome do serviço 'db'
         run: |
           poetry run python manage.py test
 
