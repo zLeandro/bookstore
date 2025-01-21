@@ -10,7 +10,7 @@ jobs:
         image: postgres:13.0-alpine
         ports:
           - 5432:5432
-        environment:
+        env:
           POSTGRES_USER: bookstore_dev
           POSTGRES_PASSWORD: bookstore_dev
           POSTGRES_DB: bookstore_dev_db
