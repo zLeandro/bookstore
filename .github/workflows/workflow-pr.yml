@@ -1,16 +1,29 @@
 name: Python Pull Request Workflow
 on: [pull_request]
-jobs:
 
+jobs:
   qa:
     name: Quality check
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:13.0-alpine
+        ports:
+          - 5432:5432
+        environment:
+          POSTGRES_USER: bookstore_dev
+          POSTGRES_PASSWORD: bookstore_dev
+          POSTGRES_DB: bookstore_dev_db
+        options: --health-cmd="pg_isready -U bookstore_dev" --health-timeout=5s --health-start-period=10s --health-retries=5
+
     steps:
       - uses: actions/checkout@v1
+
       - name: Set up Python
         uses: actions/setup-python@master
         with:
           python-version: 3.12
+
       - name: Install poetry
         run: |
           pip install -U pip
@@ -26,12 +39,18 @@ jobs:
         shell: bash
         run: python -m poetry install
 
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "PostgreSQL is ready"
+
       - name: Test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+          SQL_HOST: db
         run: |
           poetry run python manage.py test
+
       - name: Wemake Python Stylguide
         uses: wemake-services/wemake-python-styleguide@0.16.0
         continue-on-error: true
