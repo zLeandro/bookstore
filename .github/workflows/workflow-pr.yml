@@ -44,7 +44,15 @@ jobs:
 
       - name: Wait for PostgreSQL to be ready
         run: |
-          ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "PostgreSQL is ready"
+          ./wait-for-it.sh db:5432 --timeout=60 --strict -- echo "PostgreSQL is ready"
+
+      - name: Check PostgreSQL connectivity
+        run: |
+          until pg_isready -h db -p 5432 -U bookstore_dev; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready"
 
       - name: Test
         env:
