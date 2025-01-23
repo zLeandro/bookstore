@@ -1,5 +1,4 @@
 name: Python Pull Request Workflow
-
 on: [pull_request]
 
 jobs:
@@ -16,23 +15,23 @@ jobs:
           POSTGRES_PASSWORD: bookstore_dev
           POSTGRES_DB: bookstore_dev_db
         options:
-          --health-cmd="pg_isready -U bookstore_dev"
-          --health-timeout=5s
-          --health-start-period=10s
+          --health-cmd="pg_isready -U bookstore_dev" 
+          --health-timeout=5s 
+          --health-start-period=10s 
           --health-retries=5
 
     steps:
-      - uses: actions/checkout@v2  # Atualizado para a versão estável
+      - uses: actions/checkout@v1
 
       - name: Set up Python
-        uses: actions/setup-python@v2  # Atualizado para a versão estável
+        uses: actions/setup-python@v2
         with:
           python-version: 3.12
 
       - name: Install poetry
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
+          pip install -U pip
+          pip install poetry
           poetry install
         env:
           POETRY_VIRTUALENVS_CREATE: false
@@ -53,7 +52,7 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_HOST: db  # Definindo o host do banco de dados para o nome do serviço 'db'
+          SQL_HOST: db  # Certificando-se que o nome do serviço 'db' seja usado
         run: |
           poetry run python manage.py test
 
