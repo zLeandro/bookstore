@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.12]
+        python-version: [3.8, 3.9]
 
     runs-on: ubuntu-latest
 
@@ -24,7 +24,6 @@ jobs:
         python -m ensurepip
         python -m pip install --upgrade pip
         python -m pip install --upgrade poetry
-
     - name: View poetry --help
       run: poetry --help
 
@@ -32,16 +31,6 @@ jobs:
       shell: bash
       run: python -m poetry install
 
-    name: Run tests
-    env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DEBUG: 1
-      DJANGO_ALLOWED_HOSTS: localhost 127.0.0.1 [::1]
-      SQL_ENGINE: django.db.backends.postgresql
-      SQL_DATABASE: bookstore_dev_db
-      SQL_USER: bookstore_dev
-      SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-      SQL_HOST: db
-      SQL_PORT: 5432
+    - name: Test
       run: |
         poetry run python manage.py test
