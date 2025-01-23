@@ -1,4 +1,4 @@
-name: Python application
+name: Python Build and Deploy
 
 on: [push]
 
@@ -7,15 +7,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.12]  # Pode adicionar outras versões conforme necessário
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2  # Atualizado para a versão estável
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v2  # Atualizado para a versão estável
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -23,14 +23,33 @@ jobs:
       run: |
         python -m ensurepip
         python -m pip install --upgrade pip
-        python -m pip install --upgrade poetry
+        python -m pip install poetry
+
     - name: View poetry --help
       run: poetry --help
 
     - name: Install dependencies
-      shell: bash
-      run: python -m poetry install
+      run: |
+        poetry install
 
-    - name: Test
+    - name: Run tests
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DEBUG: 1
+        DJANGO_ALLOWED_HOSTS: localhost 127.0.0.1 [::1]
+        SQL_ENGINE: django.db.backends.postgresql
+        SQL_DATABASE: bookstore_dev_db
+        SQL_USER: bookstore_dev
+        SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+        SQL_HOST: db
+        SQL_PORT: 5432
       run: |
         poetry run python manage.py test
+
+    - name: Deploy to PythonAnywhere
+      run: |
+        # Exemplo de comando para fazer deploy no PythonAnywhere via SSH
+        ssh yourusername@ssh.pythonanywhere.com "cd /path/to/your/project && git pull && poetry install"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Variável secreta para autenticação SSH
+        PYTHONANYWHERE_PASSWORD: ${{ secrets.PYTHONANYWHERE_PASSWORD }}

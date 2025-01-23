@@ -1,4 +1,5 @@
 name: Python Pull Request Workflow
+
 on: [pull_request]
 
 jobs:
@@ -15,23 +16,23 @@ jobs:
           POSTGRES_PASSWORD: bookstore_dev
           POSTGRES_DB: bookstore_dev_db
         options:
-          --health-cmd="pg_isready -U bookstore_dev" 
-          --health-timeout=5s 
-          --health-start-period=10s 
+          --health-cmd="pg_isready -U bookstore_dev"
+          --health-timeout=5s
+          --health-start-period=10s
           --health-retries=5
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2  # Atualizado para a versão estável
 
       - name: Set up Python
-        uses: actions/setup-python@master
+        uses: actions/setup-python@v2  # Atualizado para a versão estável
         with:
           python-version: 3.12
 
       - name: Install poetry
         run: |
-          pip install -U pip
-          pip install poetry
+          python -m pip install --upgrade pip
+          python -m pip install poetry
           poetry install
         env:
           POETRY_VIRTUALENVS_CREATE: false
@@ -46,15 +47,13 @@ jobs:
       # Espera o PostgreSQL ficar pronto para a conexão
       - name: Wait for PostgreSQL to be ready
         run: |
-          curl -sSL https://github.com/vishnubob/wait-for-it/raw/master/wait-for-it.sh -o wait-for-it.sh
-          chmod +x wait-for-it.sh
-          ./wait-for-it.sh db:5432 --timeout=60 --strict -- echo "PostgreSQL is ready"
+          ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "PostgreSQL is ready"
 
       - name: Test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_HOST: db  # O nome do serviço do banco de dados
+          SQL_HOST: db  # Definindo o host do banco de dados para o nome do serviço 'db'
         run: |
           poetry run python manage.py test
 
