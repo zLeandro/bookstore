@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Set up Python
-        uses: actions/setup-python@master
+        uses: actions/setup-python@v2
         with:
           python-version: 3.12
 
@@ -52,7 +52,7 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_HOST: db  # Definindo o host do banco de dados para o nome do serviço 'db'
+          SQL_HOST: db  # Certificando-se que o nome do serviço 'db' seja usado
         run: |
           poetry run python manage.py test
 
