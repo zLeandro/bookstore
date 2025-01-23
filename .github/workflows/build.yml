@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9]  # Atualizado para incluir 3.8 e 3.9
+        python-version: [3.8, 3.9]
 
     runs-on: ubuntu-latest
 
@@ -24,7 +24,6 @@ jobs:
         python -m ensurepip
         python -m pip install --upgrade pip
         python -m pip install --upgrade poetry
-
     - name: View poetry --help
       run: poetry --help
 
@@ -32,6 +31,6 @@ jobs:
       shell: bash
       run: python -m poetry install
 
-    - name: Test  # Nome do job alterado para "Test"
+    - name: Test
       run: |
         poetry run python manage.py test
