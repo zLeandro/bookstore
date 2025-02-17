@@ -12,10 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
-from decouple import Config, Csv
+from decouple import config, Csv
 
-# Carregar variáveis de ambiente do arquivo .env
-config = Config()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -87,12 +85,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql"),
-        "NAME": os.environ.get("SQL_DATABASE", "bookstore_dev_db"),
-        "USER": os.environ.get("SQL_USER", "bookstore_dev"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "bookstore_dev"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+        "ENGINE": config("SQL_ENGINE", default="django.db.backends.postgresql"),
+        "NAME": config("SQL_DATABASE", default="bookstore_dev_db"),
+        "USER": config("SQL_USER", default="bookstore_dev"),
+        "PASSWORD": config("SQL_PASSWORD", default="bookstore_dev"),
+        "HOST": config("SQL_HOST", default="localhost"),
+        "PORT": config("SQL_PORT", default="5432"),
     }
 }
 
