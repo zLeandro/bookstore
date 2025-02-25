@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
-from decouple import config, Csv
+from decouple import config
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -74,12 +75,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "bookstore.wsgi.application"
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
