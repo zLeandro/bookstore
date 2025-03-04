@@ -135,4 +135,4 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 # Allowed hosts for production deployment
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'ebac-bookstore-api.herokuapp.com', 'zLe.pythonanywhere.com']
+ALLOWED_HOSTS = ['zLe.pythonanywhere.com', 'localhost', '127.0.0.1' ]
