@@ -17,7 +17,7 @@ from decouple import Config, RepositoryEnv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-config_instance = Config(repository=RepositoryEnv(BASE_DIR / '.env'))
+config = Config(repository=RepositoryEnv(BASE_DIR / '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -85,12 +85,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": config_instance("SQL_ENGINE", default="django.db.backends.postgresql"),
-        "NAME": config_instance("SQL_DATABASE", default="bookstore_dev_db"),
-        "USER": config_instance("SQL_USER", default="bookstore_dev"),
-        "PASSWORD": config_instance("SQL_PASSWORD", default="bookstore_dev"),
-        "HOST": config_instance("SQL_HOST", default="localhost"),
-        "PORT": config_instance("SQL_PORT", default="5432"),
+        "ENGINE": config("SQL_ENGINE", default="django.db.backends.postgresql"),
+        "NAME": config("SQL_DATABASE", default="bookstore_dev_db"),
+        "USER": config("SQL_USER", default="bookstore_dev"),
+        "PASSWORD": config("SQL_PASSWORD", default="bookstore_dev"),
+        "HOST": config("SQL_HOST", default="localhost"),
+        "PORT": config("SQL_PORT", default="5432"),
     }
 }
 
@@ -131,10 +131,10 @@ INTERNAL_IPS = [
 ]
 
 # Secret Key
-SECRET_KEY = config_instance("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY")
 
 # Debug settings
-DEBUG = config_instance("DEBUG", default=False, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 # Allowed hosts for production deployment
 ALLOWED_HOSTS = ['zLe.pythonanywhere.com', 'localhost', '127.0.0.1' ]
