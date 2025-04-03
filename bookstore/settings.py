@@ -135,4 +135,4 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Allowed hosts for production deployment
-ALLOWED_HOSTS = ['zLe.pythonanywhere.com', 'localhost', '127.0.0.1' ]
+ALLOWED_HOSTS = ['zLe.pythonanywhere.com', 'localhost', '127.0.0.1', 'bookstore-y2ep.onrender.com']
