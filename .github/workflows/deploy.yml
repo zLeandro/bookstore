@@ -1,0 +1,17 @@
+name: Render Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - feat-automate-deploy  # você pode mudar isso depois
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar Deploy Hook do Render
+        run: |
+          curl "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
