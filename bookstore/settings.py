@@ -46,6 +46,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "bookstore.middleware.ShowErrorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
