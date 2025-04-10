@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,14 +83,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 DATABASES = {
-    "default": {
-        "ENGINE": os.getenv("SQL_ENGINE", default="django.db.backends.postgresql"),
-        "NAME": os.getenv("SQL_DATABASE", default="bookstore_dev_db"),
-        "USER": os.getenv("SQL_USER", default="bookstore_dev"),
-        "PASSWORD": os.getenv("SQL_PASSWORD", default="bookstore_dev"),
-        "HOST": os.getenv("SQL_HOST", default="localhost"),
-        "PORT": os.getenv("SQL_PORT", default="5432"),
-    }
+    "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
 }
 
 # Password validation
