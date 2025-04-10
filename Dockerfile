@@ -44,7 +44,5 @@ RUN pip install --no-cache-dir python-dotenv
 # Expor a porta do servidor
 EXPOSE 8000
 
-RUN python create_superuser.py
 
-# Comando para iniciar o servidor Django
 CMD ["sh", "-c", "python manage.py migrate && gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"]
