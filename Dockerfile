@@ -45,4 +45,4 @@ RUN pip install --no-cache-dir python-dotenv
 EXPOSE 8000
 
 # Comando para iniciar o servidor Django
-CMD ["sh", "-c", "python manage.py migrate && python create_superuser.py && gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python cria_superuser.py && gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"]
