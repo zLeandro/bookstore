@@ -18,6 +18,7 @@ python-dotenv = "^1.0.1"
 gitpython = "^3.1.44"
 whitenoise = "^6.8.2"
 gunicorn = "^23.0.0"
+dj-database-url = "^2.3.0"
 
 [build-system]
 requires = ["poetry-core"]
